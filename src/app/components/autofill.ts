@@ -4,29 +4,29 @@ import {
   Question,
   Serializer,
   SurveyModel,
-} from "survey-core";
-import { SurveyCreatorModel } from "survey-creator-core";
+} from 'survey-core';
+import { SurveyCreatorModel } from 'survey-creator-core';
 
 export function addAutofillDataProperties() {
-  Serializer.addProperty("question", {
-    type: "boolean",
-    name: "autofillDataIsJson",
-    category: "Autofill",
+  Serializer.addProperty('question', {
+    type: 'boolean',
+    name: 'autofillDataIsJson',
+    category: 'Autofill',
     onSetValue: (survey, value) => {
-      survey.setPropertyValue("autofillDataIsJson", value);
+      survey.setPropertyValue('autofillDataIsJson', value);
     },
-    displayName: "Daten als JSON",
+    displayName: 'Daten als JSON',
     default: false,
   });
 
-  Serializer.addProperty("question", {
-    type: "text",
-    name: "autofillData",
-    category: "Autofill",
+  Serializer.addProperty('question', {
+    type: 'text',
+    name: 'autofillData',
+    category: 'Autofill',
     onSetValue: (survey, value) => {
-      survey.setPropertyValue("autofillData", value);
+      survey.setPropertyValue('autofillData', value);
     },
-    displayName: "Daten",
+    displayName: 'Daten',
     default: null,
   });
 }
@@ -39,11 +39,11 @@ export function addAutofillToolbar(creator: SurveyCreatorModel) {
   });
 
   const autofillQuestionAction = new Action({
-    id: "svd-autofill-question",
-    tooltip: "Nächste Frage automatisch ausfüllen",
-    iconName: "icon-theme",
+    id: 'svd-autofill-question',
+    tooltip: 'Nächste Frage automatisch ausfüllen',
+    iconName: 'icon-theme',
 
-    visible: new ComputedUpdater(() => creator.activeTab === "test"),
+    visible: new ComputedUpdater(() => creator.activeTab === 'test'),
     enabled: true,
 
     action: () => {
@@ -72,12 +72,12 @@ export function addAutofillToolbar(creator: SurveyCreatorModel) {
   });
 
   const autofillPageAction = new Action({
-    id: "svd-autofill-page",
+    id: 'svd-autofill-page',
     tooltip:
-      "Aktuelle Seite automatisch ausfüllen und zur nächsten Seite springen",
-    iconName: "icon-theme",
+      'Aktuelle Seite automatisch ausfüllen und zur nächsten Seite springen',
+    iconName: 'icon-theme',
 
-    visible: new ComputedUpdater(() => creator.activeTab === "test"),
+    visible: new ComputedUpdater(() => creator.activeTab === 'test'),
     enabled: true,
 
     action: () => {
@@ -95,17 +95,16 @@ export function addAutofillToolbar(creator: SurveyCreatorModel) {
   });
 
   const autofillSurveyAction = new Action({
-    id: "svd-autofill-survey",
-    tooltip: "Alle Fragen automatisch ausfüllen",
-    iconName: "icon-theme",
+    id: 'svd-autofill-survey',
+    tooltip: 'Alle Fragen automatisch ausfüllen',
+    iconName: 'icon-theme',
 
-    visible: new ComputedUpdater(() => creator.activeTab === "test"),
+    visible: new ComputedUpdater(() => creator.activeTab === 'test'),
     enabled: true,
 
     action: () => {
       const s = currentTestSurvey;
       if (s) {
-        console.log(s.data);
         //iterate over all questions and autofill them
         s.getAllQuestions().forEach((q) => {
           autofillQuestion(q, s);
@@ -130,11 +129,24 @@ function autofillQuestion(question: Question, surveyModel: SurveyModel) {
         surveyModel.setValue(q.name, JSON.parse(q.autofillData));
       } catch (err) {
         alert(
-          "Fehler beim Autofill der Frage: " +
+          'Fehler beim Autofill der Frage: ' +
             q.name +
-            "\n Der Autofill-Wert: \n\n" +
+            '\n Der Autofill-Wert: \n\n' +
             q.autofillData +
-            "\n\nkann nicht als Json-Objekt erstellt werden!\n" +
+            '\n\nkann nicht als Json-Objekt erstellt werden!\n' +
+            err
+        );
+      }
+    } else if ((q as any).inputType === 'number') {
+      try {
+        surveyModel.setValue(q.name, parseFloat(q.autofillData));
+      } catch (err) {
+        alert(
+          'Fehler beim Autofill der Frage: ' +
+            q.name +
+            '\n Der Autofill-Wert: \n\n' +
+            q.autofillData +
+            '\n\nkann nicht als Zahl geparst werden!\n' +
             err
         );
       }
