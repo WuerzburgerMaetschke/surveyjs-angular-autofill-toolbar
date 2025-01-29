@@ -34,8 +34,10 @@ export function addAutofillDataProperties() {
 export function addAutofillToolbar(creator: SurveyCreatorModel) {
   let currentTestSurvey: SurveyModel | undefined;
 
-  creator.onTestSurveyCreated.add((_, options) => {
-    currentTestSurvey = options.survey;
+  creator.onSurveyInstanceCreated.add((_, options) => {
+    if (options.area === "preview-tab") {
+      currentTestSurvey = options.survey;
+    }
   });
 
   const autofillQuestionAction = new Action({
